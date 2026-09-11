@@ -1,0 +1,151 @@
+{
+  "name": "boards-discuss",
+  "displayName": "Boards Discuss",
+  "description": "Read and participate in Azure Boards work-item discussions without leaving VS Code.",
+  "version": "0.1.0",
+  "publisher": "barberod",
+  "license": "MIT",
+  "icon": "media/marketplace-icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/barberod/boards-discuss.git"
+  },
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Azure",
+    "Other"
+  ],
+  "keywords": [
+    "azure devops",
+    "azure boards",
+    "work items",
+    "discussions",
+    "comments"
+  ],
+  "activationEvents": [
+    "onView:boardsDiscuss.main"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "boardsDiscuss",
+          "title": "Boards Discuss",
+          "icon": "media/activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "boardsDiscuss": [
+        {
+          "type": "webview",
+          "id": "boardsDiscuss.main",
+          "name": "Work Item Discussions"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "boardsDiscuss.open",
+        "title": "Boards Discuss: Open"
+      },
+      {
+        "command": "boardsDiscuss.configure",
+        "title": "Boards Discuss: Configure Azure DevOps Connection",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "boardsDiscuss.signIn",
+        "title": "Boards Discuss: Save Personal Access Token",
+        "icon": "$(key)"
+      },
+      {
+        "command": "boardsDiscuss.signOut",
+        "title": "Boards Discuss: Forget Personal Access Token"
+      },
+      {
+        "command": "boardsDiscuss.refresh",
+        "title": "Boards Discuss: Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "boardsDiscuss.showHelp",
+        "title": "Boards Discuss: Show Help"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "boardsDiscuss.refresh",
+          "when": "view == boardsDiscuss.main",
+          "group": "navigation@1"
+        },
+        {
+          "command": "boardsDiscuss.configure",
+          "when": "view == boardsDiscuss.main",
+          "group": "navigation@2"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Boards Discuss",
+      "properties": {
+        "boardsDiscuss.organization": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Azure DevOps organization name or URL, for example `contoso` or `https://dev.azure.com/contoso`."
+        },
+        "boardsDiscuss.project": {
+          "type": "string",
+          "default": "",
+          "description": "Azure DevOps project name. Leave empty to search all accessible projects."
+        },
+        "boardsDiscuss.defaultQuery": {
+          "type": "string",
+          "default": "Assigned to me",
+          "enum": [
+            "Assigned to me",
+            "Recently updated",
+            "Mentioned me",
+            "All active"
+          ],
+          "description": "Work-item set shown when the view opens."
+        },
+        "boardsDiscuss.pageSize": {
+          "type": "integer",
+          "default": 50,
+          "minimum": 10,
+          "maximum": 200,
+          "description": "Maximum work items loaded per search."
+        },
+        "boardsDiscuss.notificationIntervalMinutes": {
+          "type": "integer",
+          "default": 5,
+          "minimum": 0,
+          "maximum": 1440,
+          "description": "How often to check for new @mentions. Set to 0 to disable notifications."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "check": "npm run typecheck && npm run lint && npm test",
+    "typecheck": "tsc -p . --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "node --test dist/test/**/*.test.js",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "@vscode/vsce": "^3.2.1",
+    "eslint": "^8.57.1",
+    "typescript": "^5.7.2"
+  }
+}
