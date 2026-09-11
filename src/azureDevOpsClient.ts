@@ -34,6 +34,12 @@ interface AzureComment {
   isDeleted?: boolean;
 }
 
+interface AzureCommentList {
+  count: number;
+  totalCount: number;
+  comments: AzureComment[];
+}
+
 export class AzureDevOpsError extends Error {
   constructor(
     message: string,
@@ -136,6 +142,7 @@ export class AzureDevOpsClient {
     }
     const fields = [
       "System.Id",
+      "System.TeamProject",
       "System.Title",
       "System.WorkItemType",
       "System.State",
@@ -157,6 +164,7 @@ export class AzureDevOpsClient {
     }
     const fields = [
       "System.Id",
+      "System.TeamProject",
       "System.Title",
       "System.WorkItemType",
       "System.State",
@@ -183,33 +191,34 @@ export class AzureDevOpsClient {
     };
   }
 
-  async getComments(id: number, signal?: AbortSignal): Promise<DiscussionComment[]> {
-    const result = await this.request<AzureList<AzureComment>>(
-      this.apiUrl(`wit/workItems/${id}/comments?$top=200&order=asc`),
+  async getComments(id: number, project: string, signal?: AbortSignal): Promise<DiscussionComment[]> {
+    const result = await this.request<AzureCommentList>(
+      this.scopedApiUrl(project, `wit/workItems/${id}/comments?$top=200&$expand=renderedText&order=asc`, "7.1-preview.4"),
       { signal }
     );
-    return result.value.map(toComment).filter((comment) => !comment.isDeleted);
+    return result.comments.map(toComment).filter((comment) => !comment.isDeleted);
   }
 
-  async addComment(id: number, text: string, signal?: AbortSignal): Promise<DiscussionComment> {
-    const comment = await this.request<AzureComment>(this.apiUrl(`wit/workItems/${id}/comments`), {
+  async addComment(id: number, project: string, text: string, signal?: AbortSignal): Promise<DiscussionComment> {
+    const comment = await this.request<AzureComment>(
+      this.scopedApiUrl(project, `wit/workItems/${id}/comments?format=html`, "7.1-preview.4"), {
       method: "POST",
       body: JSON.stringify({ text }),
       signal
-    });
+      }
+    );
     return toComment(comment);
   }
 
-  async deleteComment(workItemId: number, commentId: number, signal?: AbortSignal): Promise<void> {
-    await this.request<unknown>(this.apiUrl(`wit/workItems/${workItemId}/comments/${commentId}`), {
-      method: "DELETE",
-      signal
-    });
+  async deleteComment(workItemId: number, project: string, commentId: number, signal?: AbortSignal): Promise<void> {
+    await this.request<unknown>(
+      this.scopedApiUrl(project, `wit/workItems/${workItemId}/comments/${commentId}`, "7.1-preview.4"),
+      { method: "DELETE", signal }
+    );
   }
 
-  getWorkItemWebUrl(id: number): string {
-    const project = this.settings.project ? `${encodeURIComponent(this.settings.project)}/` : "";
-    return `${this.baseUrl}/${project}_workitems/edit/${id}`;
+  getWorkItemWebUrl(id: number, project: string): string {
+    return `${this.baseUrl}/${encodeURIComponent(project)}/_workitems/edit/${id}`;
   }
 
   private apiUrl(path: string): string {
@@ -219,6 +228,11 @@ export class AzureDevOpsClient {
   private projectApiUrl(path: string): string {
     const project = this.settings.project ? `/${encodeURIComponent(this.settings.project)}` : "";
     return `${this.baseUrl}${project}/_apis/${path}?api-version=${API_VERSION}`;
+  }
+
+  private scopedApiUrl(project: string, path: string, version = API_VERSION): string {
+    const separator = path.includes("?") ? "&" : "?";
+    return `${this.baseUrl}/${encodeURIComponent(project)}/_apis/${path}${separator}api-version=${version}`;
   }
 
   private async request<T>(url: string, init: RequestInit = {}): Promise<T> {
@@ -313,6 +327,7 @@ function toWorkItemSummary(item: AzureWorkItem): WorkItemSummary {
   const assigned = item.fields["System.AssignedTo"];
   return {
     id: item.id,
+    project: fieldString(item.fields, "System.TeamProject"),
     title: fieldString(item.fields, "System.Title") || `Work item ${item.id}`,
     type: fieldString(item.fields, "System.WorkItemType") || "Work Item",
     state: fieldString(item.fields, "System.State") || "Unknown",

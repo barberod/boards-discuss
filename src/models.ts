@@ -6,6 +6,7 @@ export interface ConnectionSettings {
 
 export interface WorkItemSummary {
   id: number;
+  project: string;
   title: string;
   type: string;
   state: string;

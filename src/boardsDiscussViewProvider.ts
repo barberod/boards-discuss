@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { AzureDevOpsClient, AzureDevOpsError } from "./azureDevOpsClient";
 import { DEFAULT_FILTERS, VIEW_ID } from "./constants";
-import { Identity, WorkItemFilters } from "./models";
+import { Identity, WorkItemDetails, WorkItemFilters } from "./models";
 import { sanitizeAzureHtml } from "./security";
 import { StateStore } from "./stateStore";
 
@@ -26,6 +26,7 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
 
   private view: vscode.WebviewView | undefined;
   private requestController: AbortController | undefined;
+  private currentItem: WorkItemDetails | undefined;
 
   constructor(
     private readonly context: vscode.ExtensionContext,
@@ -129,9 +130,9 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
     const client = await this.getClient();
     await this.post({ type: "loading", target: "discussion", loading: true });
     try {
-      const [item, comments, me] = await Promise.all([
-        client.getWorkItem(id),
-        client.getComments(id),
+      const item = await client.getWorkItem(id);
+      const [comments, me] = await Promise.all([
+        client.getComments(id, item.project),
         client.getCurrentUser().catch(() => ({ displayName: "" } as Identity))
       ]);
       item.description = sanitizeAzureHtml(item.description);
@@ -139,6 +140,7 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
       for (const comment of comments) {
         comment.renderedText = sanitizeAzureHtml(comment.renderedText);
       }
+      this.currentItem = item;
       await this.store.setLastWorkItem(id);
       await this.post({ type: "workItem", item, comments, me, state: this.store.state });
     } finally {
@@ -151,7 +153,10 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
     if (!trimmed || trimmed.length > 32_000) {
       throw new Error(trimmed ? "Comments must be 32,000 characters or fewer." : "Write a comment first.");
     }
-    await (await this.getClient()).addComment(id, trimmed);
+    if (!this.currentItem || this.currentItem.id !== id) {
+      throw new Error("Select the work item again before posting.");
+    }
+    await (await this.getClient()).addComment(id, this.currentItem.project, trimmed);
     await this.post({ type: "toast", message: "Comment posted." });
     await this.loadWorkItem(id);
   }
@@ -165,7 +170,10 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
     if (answer !== "Delete") {
       return;
     }
-    await (await this.getClient()).deleteComment(workItemId, commentId);
+    if (!this.currentItem || this.currentItem.id !== workItemId) {
+      throw new Error("Select the work item again before deleting a comment.");
+    }
+    await (await this.getClient()).deleteComment(workItemId, this.currentItem.project, commentId);
     await this.post({ type: "toast", message: "Comment deleted." });
     await this.loadWorkItem(workItemId);
   }
@@ -187,7 +195,11 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
 
   private async openWorkItem(id: number): Promise<void> {
     const client = await this.getClient();
-    await vscode.env.openExternal(vscode.Uri.parse(client.getWorkItemWebUrl(id)));
+    const project = this.currentItem?.id === id ? this.currentItem.project : this.store.settings.project;
+    if (!project) {
+      throw new Error("Select the work item again before opening it in Azure DevOps.");
+    }
+    await vscode.env.openExternal(vscode.Uri.parse(client.getWorkItemWebUrl(id, project)));
   }
 
   private async openLink(url: string): Promise<void> {

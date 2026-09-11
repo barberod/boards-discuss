@@ -88,7 +88,7 @@ export class MentionMonitor implements vscode.Disposable {
   ): Promise<MentionNotification[]> {
     const notifications: MentionNotification[] = [];
     for (const item of items) {
-      const comments = await client.getComments(item.id);
+      const comments = await client.getComments(item.id, item.project);
       for (const comment of comments) {
         if (comment.createdDate <= since || !isMentioned(comment.renderedText, identityId, uniqueName)) {
           continue;
