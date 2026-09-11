@@ -136,7 +136,7 @@
     "check": "npm run typecheck && npm run lint && npm test",
     "typecheck": "tsc -p . --noEmit",
     "lint": "eslint src --ext .ts",
-    "test": "node --test dist/test/**/*.test.js",
+    "test": "npm run build && node --test dist/test/*.test.js",
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
