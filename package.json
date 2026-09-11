@@ -103,17 +103,6 @@
           "default": "",
           "description": "Azure DevOps project name. Leave empty to search all accessible projects."
         },
-        "boardsDiscuss.defaultQuery": {
-          "type": "string",
-          "default": "Assigned to me",
-          "enum": [
-            "Assigned to me",
-            "Recently updated",
-            "Mentioned me",
-            "All active"
-          ],
-          "description": "Work-item set shown when the view opens."
-        },
         "boardsDiscuss.pageSize": {
           "type": "integer",
           "default": 50,

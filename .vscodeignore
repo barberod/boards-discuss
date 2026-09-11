@@ -1,8 +1,10 @@
-.github/
-.vscode/
+.github/**
+.vscode/**
 src/
-test/
-*.map
+**/*.map
+dist/test/**
 tsconfig.json
 .eslintrc.json
 node_modules/
+.gitignore
+package-lock.json
