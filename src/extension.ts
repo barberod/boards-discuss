@@ -42,8 +42,8 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
     vscode.commands.registerCommand("boardsDiscuss.signIn", async () => {
       const pat = await vscode.window.showInputBox({
-        title: "Boards Discuss — Personal Access Token",
-        prompt: "Use a token with Work Items (read & write) permission",
+        title: "Boards Discuss — Connect to Azure DevOps",
+        prompt: "Enter a personal access token with Work Items (read & write) permission",
         password: true,
         ignoreFocusOut: true,
         validateInput: (value) => value.trim().length >= 20 ? undefined : "Enter a valid personal access token."

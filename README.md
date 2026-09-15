@@ -28,7 +28,7 @@ Pinned items are shown first. Favorites stay close by even when they no longer m
 2. Choose **Configure organization**.
 3. Enter your Azure DevOps organization and, optionally, a project.
 4. Create a personal access token in Azure DevOps with **Work Items — Read & write** scope.
-5. Choose **Save PAT** and paste the token.
+5. Choose **Connect to Azure DevOps** and complete the authentication prompt.
 
 The PAT is stored with VS Code's encrypted SecretStorage API. It is never saved in `settings.json`, extension logs, or workspace files.
 
@@ -36,8 +36,8 @@ You can also run any command from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shi
 
 - `Boards Discuss: Open`
 - `Boards Discuss: Configure Azure DevOps Connection`
-- `Boards Discuss: Save Personal Access Token`
-- `Boards Discuss: Forget Personal Access Token`
+- `Boards Discuss: Connect to Azure DevOps`
+- `Boards Discuss: Disconnect from Azure DevOps`
 - `Boards Discuss: Refresh`
 - `Boards Discuss: Show Help`
 

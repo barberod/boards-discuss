@@ -72,12 +72,12 @@
       },
       {
         "command": "boardsDiscuss.signIn",
-        "title": "Boards Discuss: Save Personal Access Token",
+        "title": "Boards Discuss: Connect to Azure DevOps",
         "icon": "$(key)"
       },
       {
         "command": "boardsDiscuss.signOut",
-        "title": "Boards Discuss: Forget Personal Access Token"
+        "title": "Boards Discuss: Disconnect from Azure DevOps"
       },
       {
         "command": "boardsDiscuss.refresh",

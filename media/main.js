@@ -116,10 +116,10 @@
       <p>Search, read context, and respond without losing your place in code. Your token is safely stored in VS Code's encrypted secret storage.</p>
       <div class="status-actions">
         <button class="primary" data-action="configure">${state.configured ? "Edit connection" : "Configure organization"}</button>
-        <button class="primary" data-action="signIn">${state.authenticated ? "Replace token" : "Save PAT"}</button>
+        <button class="primary" data-action="signIn">${state.authenticated ? "Reconnect" : "Connect"}</button>
         <button class="secondary" data-action="help">Setup help</button>
       </div>
-      ${ready ? "" : `<p class="hint">PAT scope required: Work Items (Read & write). The token is never written to settings or logs.</p>`}
+      ${ready ? "" : `<p class="hint">Authentication requires Work Items (Read & write) access. Credentials are never written to settings or logs.</p>`}
     </div>`;
   }
 

@@ -222,7 +222,7 @@ export class BoardsDiscussViewProvider implements vscode.WebviewViewProvider {
     }
     const pat = await this.store.getPat();
     if (!pat) {
-      throw new Error("Save an Azure DevOps personal access token to get started.");
+      throw new Error("Connect to Azure DevOps to get started.");
     }
     return new AzureDevOpsClient(settings, pat);
   }
