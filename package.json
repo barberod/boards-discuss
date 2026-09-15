@@ -2,14 +2,27 @@
   "name": "boards-discuss",
   "displayName": "Boards Discuss",
   "description": "Read and participate in Azure Boards work-item discussions without leaving VS Code.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "barberod",
+  "author": {
+    "name": "David Barbero",
+    "url": "https://github.com/barberod"
+  },
   "license": "MIT",
   "icon": "media/marketplace-icon.png",
+  "homepage": "https://github.com/barberod/boards-discuss#readme",
+  "bugs": {
+    "url": "https://github.com/barberod/boards-discuss/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/barberod/boards-discuss.git"
   },
+  "galleryBanner": {
+    "color": "#0D2A47",
+    "theme": "dark"
+  },
+  "pricing": "Free",
   "engines": {
     "vscode": "^1.96.0"
   },
